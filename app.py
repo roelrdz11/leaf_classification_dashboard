@@ -1,5 +1,3 @@
-from dash import dcc, html
-import dash
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -65,101 +63,101 @@ def plot_accuracies(accuracies):
     buf.close()
     return f"data:image/png;base64,{img_bytes}"
 
-# Create the Dash app
-app = dash.Dash(__name__)
+# Generate the plot as a base64 string
+accuracy_plot = plot_accuracies(accuracies)
 
-# Define the layout
-app.layout = html.Div([
-    
-    # Header Section (Title, Name, Affiliation)
-    html.Div([
-        html.H1("Leaf Classification Dashboard"),
-        html.H3("Roel Rodriguez"),
-        html.H4("Boston College, Woods College: Applied Analytics, ADAN 7399: Computer Vision"),
-    ], style={'textAlign': 'center', 'padding': '10px', 'backgroundColor': '#8a100b'}),
-    
-    # Main content: 4 columns
-    html.Div([
-        # Column 1: Abstract, Introduction & Significance
-        html.Div([
-            html.Div([
-                html.H3("Abstract"),
-                dcc.Markdown('''
-                This project explores classifying various species of leaves using machine learning techniques. 
-                Three classifiers (Random Forest, K-Neighbors, and SVC) were evaluated, and the validation accuracies 
-                for each model were compared to determine the most effective approach for leaf classification.
-                ''')
-            ], style={'overflowY': 'scroll', 'height': '180px', 'padding': '10px'}),
-            
-            html.Div([
-                html.H3("Introduction & Significance"),
-                dcc.Markdown('''
-                Accurate leaf classification is important in plant taxonomy and ecology. By applying machine learning models 
-                to leaf margin and texture data, we can efficiently classify leaf species. This study highlights the potential 
-                of machine learning to provide insights into biological datasets.
-                ''')
-            ], style={'overflowY': 'scroll', 'height': '180px', 'padding': '10px'}),
-        ], style={'width': '23%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'border': '1px solid gray'}),
-        
-        # Column 2: Methods
-        html.Div([
-            html.Div([
-                html.H3("Methods"),
-                dcc.Markdown('''
-                - **Preprocessing**: 
-                    1. Dropped the 'id' and 'species' columns.
-                    2. Standardized features using StandardScaler.
-                
-                - **Classifiers**: 
-                    1. RandomForest: A tree-based ensemble method.
-                    2. KNeighbors: A distance-based model.
-                    3. SVC: A linear support vector classifier.
-                
-                Each classifier was trained on the same data to ensure a fair comparison of validation accuracies.
-                '''),
-            ], style={'overflowY': 'scroll', 'height': '320px', 'padding': '10px'}),
-        ], style={'width': '23%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'border': '1px solid gray'}),
-        
-        # Column 3: Results (Bar graph of validation accuracies)
-        html.Div([
-            html.Div([
-                html.H3("Results: Accuracy Comparison"),
-                html.Img(src=plot_accuracies(accuracies), style={'width': '100%', 'height': 'auto'})
-            ], style={'padding': '10px'}),
-        ], style={'width': '23%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'border': '1px solid gray'}),
-        
-        # Column 4: Discussion, Conclusion, and References
-        html.Div([
-            html.Div([
-                html.H3("Discussion"),
-                dcc.Markdown(f'''
-                The SVC model achieved the highest validation accuracy, followed by the K-Neighbors and RandomForest classifiers. 
-                This result suggests that a linear classifier like SVC may be more suitable for this dataset, as it outperformed 
-                both tree-based and distance-based models.
-                ''')
-            ], style={'overflowY': 'scroll', 'height': '180px', 'padding': '10px'}),
-            
-            html.Div([
-                html.H3("Conclusion"),
-                dcc.Markdown('''
-                This study demonstrates the effectiveness of machine learning models in leaf classification tasks. 
-                The SVC model provided the best performance, indicating its suitability for this dataset. Future studies 
-                could explore more complex models or additional feature engineering to improve classification results further.
-                ''')
-            ], style={'overflowY': 'scroll', 'height': '180px', 'padding': '10px'}),
-            
-            html.Div([
-                html.H3("References"),
-                dcc.Markdown('''
-                - Kaggle Leaf Classification Dataset.
-                - Scikit-learn: Machine learning library used for classifier implementation.
-                ''')
-            ], style={'overflowY': 'scroll', 'height': '180px', 'padding': '10px'}),
-        ], style={'width': '23%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '10px', 'border': '1px solid gray'}),
-    ], style={'display': 'flex', 'justifyContent': 'space-between'}),  # Flexbox layout to arrange columns
-])
+# Generate static HTML output
+html_output = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaf Classification Dashboard</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; }}
+        .container {{ max-width: 1200px; margin: auto; padding: 20px; }}
+        .column {{ float: left; width: 23%; margin: 1%; padding: 10px; border: 1px solid gray; }}
+        .clear {{ clear: both; }}
+        h1, h3, h4, h5 {{ color: #8a100b; text-align: center; }}
+        img {{ width: 100%; height: auto; }}
+        .header {{ background-color: #8a100b; color: white; padding: 10px; text-align: center; }}
+        .section-title {{ text-align: center; font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Leaf Classification Dashboard</h1>
+            <h3>Roel Rodriguez</h3>
+            <h4>Boston College, Woods College: Applied Analytics, ADAN 7399: Computer Vision</h4>
+        </div>
 
-# Run the app
-if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)  # default port
+        <!-- Column 1: Abstract, Introduction & Significance -->
+        <div class="column">
+            <h3 class="section-title">Abstract</h3>
+            <p>This project explores classifying various species of leaves using machine learning techniques. 
+            Three classifiers (Random Forest, K-Neighbors, and SVC) were evaluated, and the validation accuracies 
+            for each model were compared to determine the most effective approach for leaf classification.</p>
+            
+            <h3 class="section-title">Introduction & Significance</h3>
+            <p>Accurate leaf classification is important in plant taxonomy and ecology. By applying machine learning models 
+            to leaf margin and texture data, we can efficiently classify leaf species. This study highlights the potential 
+            of machine learning to provide insights into biological datasets.</p>
+        </div>
 
+        <!-- Column 2: Methods -->
+        <div class="column">
+            <h3 class="section-title">Methods</h3>
+            <p><strong>Preprocessing:</strong> 
+            <ul>
+                <li>Dropped the 'id' and 'species' columns.</li>
+                <li>Standardized features using StandardScaler.</li>
+            </ul>
+            </p>
+            <p><strong>Classifiers:</strong> 
+            <ul>
+                <li>RandomForest: A tree-based ensemble method.</li>
+                <li>KNeighbors: A distance-based model.</li>
+                <li>SVC: A linear support vector classifier.</li>
+            </ul>
+            Each classifier was trained on the same data to ensure a fair comparison of validation accuracies.
+            </p>
+        </div>
+
+        <!-- Column 3: Results (Bar graph of validation accuracies) -->
+        <div class="column">
+            <h3 class="section-title">Results: Accuracy Comparison</h3>
+            <img src="{accuracy_plot}" alt="Accuracy plot">
+        </div>
+
+        <!-- Column 4: Discussion, Conclusion, and References -->
+        <div class="column">
+            <h3 class="section-title">Discussion</h3>
+            <p>The SVC model achieved the highest validation accuracy, followed by the K-Neighbors and RandomForest classifiers. 
+            This result suggests that a linear classifier like SVC may be more suitable for this dataset, as it outperformed 
+            both tree-based and distance-based models.</p>
+
+            <h3 class="section-title">Conclusion</h3>
+            <p>This study demonstrates the effectiveness of machine learning models in leaf classification tasks. 
+            The SVC model provided the best performance, indicating its suitability for this dataset. Future studies 
+            could explore more complex models or additional feature engineering to improve classification results further.</p>
+
+            <h3 class="section-title">References</h3>
+            <ul>
+                <li>Kaggle Leaf Classification Dataset.</li>
+                <li>Scikit-learn: Machine learning library used for classifier implementation.</li>
+            </ul>
+        </div>
+
+        <!-- Clear floats -->
+        <div class="clear"></div>
+    </div>
+</body>
+</html>
+"""
+
+# Save the HTML file
+with open("index.html", "w") as file:
+    file.write(html_output)
