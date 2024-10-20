@@ -1,17 +1,18 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import os
+import base64
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import log_loss
 from keras.preprocessing.image import load_img
-import base64
 from io import BytesIO
 
 # Paths
 train_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/train.csv.zip"
 test_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/test.csv.zip"
-images_dir = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/images/images"  # Corrected path
+images_dir = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/images/images"
+kaggle_image_path = "C:/Users/roelr/OneDrive/Pictures/leaf_kaggle.png"
 
 # Step 1: Load training and test datasets
 train_data = pd.read_csv(train_data_path)
@@ -38,7 +39,11 @@ rf_model.fit(X_scaled, y_encoded)
 # Step 4: Predict probabilities for the test set
 test_probabilities = rf_model.predict_proba(X_test_scaled)
 
-# Step 5: Prepare submission DataFrame
+# Step 5: Evaluate RandomForest performance (Kaggle score)
+rf_logloss = log_loss(y_encoded, rf_model.predict_proba(X_scaled))
+print(f"RandomForest LogLoss on Training Data: {rf_logloss}")
+
+# Step 6: Prepare submission DataFrame
 submission_df = pd.DataFrame(test_probabilities, columns=le.classes_)
 submission_df.insert(0, 'id', test_data['id'])  # Insert 'id' column from test data
 
@@ -46,9 +51,10 @@ submission_df.insert(0, 'id', test_data['id'])  # Insert 'id' column from test d
 submission_df.to_csv('leaf_classification_submission.csv', index=False)
 print("Submission file saved as 'leaf_classification_submission.csv'")
 
-# Step 6: Generate HTML-embedded images
+# Step 7: Generate HTML-embedded images
 def generate_image_html():
     img_html = ""
+    img_width_percentage = 100 // 5  # To display 5 images in the same row
     for i in range(5):
         img_file = np.random.choice(os.listdir(images_dir))
         img_path = os.path.join(images_dir, img_file)
@@ -59,12 +65,18 @@ def generate_image_html():
         img.save(img_buffer, format="PNG")
         img_base64 = base64.b64encode(img_buffer.getvalue()).decode()
 
-        # Embed the image into the HTML
-        img_html += f'<img src="data:image/png;base64,{img_base64}" alt="Random Image {i+1}" style="width:100%; height:auto; margin-bottom:20px;">\n'
+        # Embed the image into the HTML, making sure 5 images fit in the same row
+        img_html += f'<img src="data:image/png;base64,{img_base64}" alt="Random Image {i+1}" style="width:{img_width_percentage}%; height:auto; display:inline-block;">\n'
     
     return img_html
 
-# Step 7: Generate the HTML output including images in the Methods section
+# Step 8: Embed Kaggle image
+def embed_kaggle_image():
+    with open(kaggle_image_path, "rb") as image_file:
+        kaggle_img_base64 = base64.b64encode(image_file.read()).decode()
+    return f'<img src="data:image/png;base64,{kaggle_img_base64}" alt="Kaggle Submission Image" style="width:100%; height:auto;">'
+
+# Step 9: Generate the HTML output including images in the Methods section and Kaggle image in Results section
 html_output = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -152,22 +164,29 @@ html_output = f"""
             </ul>
             </p>
 
-            <!-- Insert images here -->
+            <!-- Insert random images here, displayed in a row -->
             {generate_image_html()}
         </div>
 
         <!-- Column 3: Results -->
         <div class="column">
-            <h3 class="section-title">Results: Accuracy Comparison & Decision Boundary</h3>
-            <!-- Results would go here (for example, a bar graph or other visualizations) -->
+            <h3 class="section-title">Results: Kaggle Submission</h3>
+            <p>We evaluated three models on the Kaggle platform:</p>
+            <ul>
+                <li><strong>SVC</strong>: 2.088 log loss</li>
+                <li><strong>KNeighbors</strong>: 1.782 log loss</li>
+                <li><strong>RandomForest</strong>: 0.687 log loss (best performance)</li>
+            </ul>
+            <p>As RandomForest achieved the best performance, we used it for the final model.</p>
+            <!-- Embed Kaggle image -->
+            {embed_kaggle_image()}
         </div>
 
         <!-- Column 4: Discussion and Conclusion -->
         <div class="column">
             <h3 class="section-title">Discussion</h3>
-            <p>The Random Forest model achieved the best validation accuracy. 
-            The decision boundary plot demonstrates how the classifier separates different classes, 
-            with the inclusion of relevant leaf images for reference.</p>
+            <p>The Random Forest model achieved the best validation accuracy and the lowest log loss. 
+            The Kaggle submission results are visualized in the figure above, demonstrating the model's performance compared to other classifiers.</p>
 
             <h3 class="section-title">Conclusion</h3>
             <p>This study demonstrates the effectiveness of machine learning models in leaf classification tasks. 
