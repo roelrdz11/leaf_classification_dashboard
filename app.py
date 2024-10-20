@@ -181,7 +181,7 @@ html_output = f"""
             </ul>
             </p>
 
-            <!-- Insert random images here, displayed in a row -->
+            <!-- Insert random training images here -->
             {generate_image_html()}
         </div>
 
@@ -197,7 +197,7 @@ html_output = f"""
             <p>As KNN achieved the best performance, we used it for the final model.</p>
 
             <!-- Embed Kaggle images -->
-            {generate_image_html()}
+            {embed_kaggle_images()}
         </div>
 
         <!-- Column 4: Discussion and Conclusion -->
