@@ -6,16 +6,16 @@ import base64
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 
-# Load your dataset
+# Load your training dataset
 train_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/train.csv.zip"
 train_data = pd.read_csv(train_data_path)
 
-# Placeholder for loading test data (for Kaggle submission)
+# Load your test dataset
 test_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/test.csv.zip"
 test_data = pd.read_csv(test_data_path)
 
@@ -39,7 +39,7 @@ X_train, X_valid, y_train, y_valid = train_test_split(X_scaled, y, test_size=0.2
 classifiers = {
     "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42),
     "KNeighbors": KNeighborsClassifier(n_neighbors=5),
-    "SVC": SVC(kernel='linear')
+    "SVC": SVC(kernel='linear', probability=True)
 }
 
 accuracies = {}
@@ -52,11 +52,19 @@ for name, clf in classifiers.items():
 # Step 3: Train SVC on full training data and prepare Kaggle submission
 svc = classifiers['SVC']
 svc.fit(X_scaled, y)  # Train on full data
-predictions = svc.predict(X_test_scaled)  # Predict for test data
+y_pred_proba = svc.predict_proba(X_test_scaled)  # Predict for test data
 
-# Prepare Kaggle submission
-submission = pd.DataFrame({'id': test_data['id'], 'species': predictions})
-submission.to_csv('svc_leaf_classification_submission.csv', index=False)
+# Get the species names (class labels)
+species_names = pd.factorize(train_data['species'])[1]
+
+# Prepare Kaggle submission format with species as columns
+submission_df = pd.DataFrame(y_pred_proba, columns=species_names)
+submission_df.insert(0, 'id', test_data['id'])  # Add 'id' column from test set
+
+# Save the submission file
+submission_df.to_csv('svc_leaf_classification_submission.csv', index=False)
+
+print("Submission file saved as 'svc_leaf_classification_submission.csv'")
 
 # Step 4: Plot validation accuracies with adjusted scaling and font size for readability
 def plot_accuracies(accuracies):
