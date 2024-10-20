@@ -42,7 +42,7 @@ for name, clf in classifiers.items():
     acc = accuracy_score(y_test, y_pred)
     accuracies[name] = acc
 
-# Step 3: Plot validation accuracies as a horizontal bar graph with sky blue bars
+# Step 3: Plot validation accuracies as a horizontal bar graph
 def plot_accuracies(accuracies):
     fig, ax = plt.subplots(figsize=(8, 5))
     names = list(accuracies.keys())
@@ -75,14 +75,16 @@ html_output = f"""
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaf Classification Dashboard</title>
     <style>
-        body {{ font-family: Arial, sans-serif; }}
+        body {{ font-family: Arial, sans-serif; background-color: #b29d6c; }} /* Set background color */
         .container {{ max-width: 1200px; margin: auto; padding: 20px; }}
         .column {{ float: left; width: 23%; margin: 1%; padding: 10px; border: 1px solid gray; }}
         .clear {{ clear: both; }}
-        h1, h3, h4, h5 {{ color: #8a100b; text-align: center; }}
+        h1, h3, h4, h5 {{ color: white; text-align: center; }}
         img {{ width: 100%; height: auto; }}
         .header {{ background-color: #8a100b; color: white; padding: 10px; text-align: center; }}
         .section-title {{ text-align: center; font-weight: bold; }}
+        p {{ color: white; }}
+        ul {{ color: white; }}
     </style>
 </head>
 <body>
@@ -91,7 +93,7 @@ html_output = f"""
         <div class="header">
             <h1>Leaf Classification Dashboard</h1>
             <h3>Roel Rodriguez</h3>
-            <h4>Boston College, Woods College: Applied Analytics, ADAN 7399: Computer Vision</h4>
+            <h4>Boston College, Woods College: Applied Analytics, ADAN 7431: Computer Vision</h4>
         </div>
 
         <!-- Column 1: Abstract, Introduction & Significance -->
