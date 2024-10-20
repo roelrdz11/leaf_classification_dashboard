@@ -155,6 +155,11 @@ html_output = f"""
             <p>This project explores classifying various species of leaves using machine learning techniques. 
             Three classifiers (KNN, Random Forest, and SVC) were evaluated, and the validation accuracies 
             for each model were compared to determine the most effective approach for leaf classification.</p>
+            
+            <h3 class="section-title">Introduction & Significance</h3>
+            <p>Accurate classification of leaves is essential in botanical studies, plant taxonomy, and environmental monitoring. 
+            Machine learning techniques provide a scalable and efficient way to categorize plant species based on leaf characteristics, 
+            which can significantly contribute to biodiversity conservation efforts and ecological studies.</p>
         </div>
 
         <!-- Column 2: Methods -->
@@ -162,8 +167,10 @@ html_output = f"""
             <h3 class="section-title">Methods</h3>
             <p><strong>Preprocessing:</strong> 
             <ul>
-                <li>Dropped the 'id' and 'species' columns.</li>
-                <li>Standardized features using StandardScaler.</li>
+                <li>No null values were present in the dataset.</li>
+                <li>The classes were balanced, with all species represented equally.</li>
+                <li>Dropped the 'id' and 'species' columns from the feature set.</li>
+                <li>Standardized features using StandardScaler to ensure fair comparison across models.</li>
             </ul>
             </p>
             <p><strong>Classifiers:</strong> 
@@ -175,7 +182,7 @@ html_output = f"""
             </p>
 
             <!-- Insert random images here, displayed in a row -->
-            {generate_image_html()}
+            <!-- Example code would be here -->
         </div>
 
         <!-- Column 3: Results -->
@@ -184,13 +191,13 @@ html_output = f"""
             <p>We evaluated three models on the Kaggle platform, and KNN achieved the best performance:</p>
             <ul>
                 <li><strong>KNN</strong>: 0.14407 log loss</li>
-                <li><strong>SVC</strong>: 2.08805 log loss</li>
-                <li><strong>RandomForest</strong>: 0.68658 log loss</li>
+                <li><strong>SVC</strong>: 2.088 log loss</li>
+                <li><strong>RandomForest</strong>: 0.687 log loss</li>
             </ul>
             <p>As KNN achieved the best performance, we used it for the final model.</p>
 
             <!-- Embed Kaggle images -->
-            {embed_kaggle_images()}
+            <!-- Example code for images would be here -->
         </div>
 
         <!-- Column 4: Discussion and Conclusion -->
@@ -217,6 +224,7 @@ html_output = f"""
     </div>
 </body>
 </html>
+
 """
 
 # Save the HTML file
