@@ -15,9 +15,14 @@ from sklearn.model_selection import train_test_split
 train_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/train.csv.zip"
 train_data = pd.read_csv(train_data_path)
 
+# Placeholder for loading test data (for Kaggle submission)
+test_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/test.csv.zip"
+test_data = pd.read_csv(test_data_path)
+
 # Step 1: Preprocessing
 X = train_data.drop(columns=['id', 'species'])  # Features
 y = train_data['species']  # Labels
+X_test = test_data.drop(columns=['id'])  # Test features for Kaggle submission
 
 # Convert categorical labels to numerical values
 y = pd.factorize(y)[0]
@@ -25,9 +30,10 @@ y = pd.factorize(y)[0]
 # Standardize the features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
+X_test_scaled = scaler.transform(X_test)  # Also scale the test set
 
 # Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train, X_valid, y_train, y_valid = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
 # Step 2: Train multiple classifiers
 classifiers = {
@@ -39,29 +45,42 @@ classifiers = {
 accuracies = {}
 for name, clf in classifiers.items():
     clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
+    y_pred = clf.predict(X_valid)
+    acc = accuracy_score(y_valid, y_pred)
     accuracies[name] = acc
 
-# Step 3: Plot validation accuracies as a horizontal bar graph
+# Step 3: Train SVC on full training data and prepare Kaggle submission
+svc = classifiers['SVC']
+svc.fit(X_scaled, y)  # Train on full data
+predictions = svc.predict(X_test_scaled)  # Predict for test data
+
+# Prepare Kaggle submission
+submission = pd.DataFrame({'id': test_data['id'], 'species': predictions})
+submission.to_csv('svc_leaf_classification_submission.csv', index=False)
+
+# Step 4: Plot validation accuracies with adjusted scaling and font size for readability
 def plot_accuracies(accuracies):
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(10, 6))
     names = list(accuracies.keys())
     values = list(accuracies.values())
     
     ax.barh(names, values, color='skyblue')  # Sky blue bars
-    ax.set_xlabel('Accuracy')
-    ax.set_title('Validation Accuracy of Different Classifiers')
+    ax.set_xlabel('Accuracy', fontsize=14)
+    ax.set_title('Validation Accuracy of Different Classifiers', fontsize=16)
+    ax.tick_params(axis='both', which='major', labelsize=12)
+
+    # Adjust scale to emphasize small differences
+    ax.set_xlim([min(values) - 0.01, 1.0])  # Scale starts slightly below the lowest accuracy
 
     # Save plot as image
     buf = io.BytesIO()
-    plt.savefig(buf, format='png')
+    plt.savefig(buf, format='png', bbox_inches='tight')  # Ensure text isn't clipped
     buf.seek(0)
     img_bytes = base64.b64encode(buf.read()).decode()
     buf.close()
     return f"data:image/png;base64,{img_bytes}"
 
-# Step 4: Visualize decision boundary using PCA for dimensionality reduction
+# Step 5: Visualize decision boundary using PCA for dimensionality reduction
 def plot_decision_boundary(X, y, model, image=None):
     pca = PCA(n_components=2)
     X_pca = pca.fit_transform(X)
@@ -73,7 +92,7 @@ def plot_decision_boundary(X, y, model, image=None):
     Z = model.predict(pca.inverse_transform(np.c_[xx.ravel(), yy.ravel()]))
     Z = Z.reshape(xx.shape)
 
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(10, 6))
     
     # Plot the image behind the decision boundary, if provided
     if image is not None:
@@ -82,13 +101,14 @@ def plot_decision_boundary(X, y, model, image=None):
     plt.contourf(xx, yy, Z, alpha=0.3, cmap='coolwarm')
     scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y, edgecolor='k', s=20)
     plt.legend(*scatter.legend_elements(), title="Classes")
-    plt.title('Decision Boundary of SVC (PCA-reduced)')
-    plt.xlabel('Principal Component 1')
-    plt.ylabel('Principal Component 2')
+    plt.title('Decision Boundary of SVC (PCA-reduced)', fontsize=16)
+    plt.xlabel('Principal Component 1', fontsize=14)
+    plt.ylabel('Principal Component 2', fontsize=14)
+    plt.tick_params(axis='both', which='major', labelsize=12)
 
     # Save plot as image
     buf = io.BytesIO()
-    plt.savefig(buf, format='png')
+    plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
     img_bytes = base64.b64encode(buf.read()).decode()
     buf.close()
