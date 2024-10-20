@@ -75,16 +75,49 @@ html_output = f"""
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaf Classification Dashboard</title>
     <style>
-        body {{ font-family: Arial, sans-serif; background-color: #b29d6c; }} /* Set background color */
-        .container {{ max-width: 1200px; margin: auto; padding: 20px; }}
-        .column {{ float: left; width: 23%; margin: 1%; padding: 10px; border: 1px solid gray; }}
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #b29d6c;  /* Set background color */
+            color: black;  /* Main text color */
+        }}
+        .container {{
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }}
+        .column {{
+            width: 23%;  /* Each column takes up about 23% of the width */
+            margin: 1%;  /* Small margin between columns */
+            padding: 10px;
+            border: 1px solid gray;
+            box-sizing: border-box;
+        }}
         .clear {{ clear: both; }}
-        h1, h3, h4, h5 {{ color: white; text-align: center; }}
-        img {{ width: 100%; height: auto; }}
-        .header {{ background-color: #8a100b; color: white; padding: 10px; text-align: center; }}
-        .section-title {{ text-align: center; font-weight: bold; }}
-        p {{ color: white; }}
-        ul {{ color: white; }}
+        h1, h3, h4, h5 {{
+            color: white;  /* Title text color */
+            text-align: center;
+        }}
+        p, ul {{
+            color: black;  /* Main text color */
+        }}
+        img {{
+            width: 100%;
+            height: auto;
+        }}
+        .header {{
+            background-color: #8a100b;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+        }}
+        .section-title {{
+            text-align: center;
+            font-weight: bold;
+        }}
     </style>
 </head>
 <body>
