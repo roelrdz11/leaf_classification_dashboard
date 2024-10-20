@@ -153,7 +153,7 @@ html_output = f"""
         <div class="column">
             <h3 class="section-title">Abstract</h3>
             <p>This project explores classifying various species of leaves using machine learning techniques. 
-            Three classifiers (KNN, Random Forest, and SVC) were evaluated, and the Kaggle Log Loss scores 
+            Three classifiers (KNN, Random Forest, and SVC) were evaluated, and the Kaggle logloss scores 
             for each model were compared to determine the most effective approach for leaf classification.</p>
             
             <h3 class="section-title">Introduction & Significance</h3>
