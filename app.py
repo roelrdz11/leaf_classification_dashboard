@@ -143,7 +143,7 @@ html_output = f"""
         <div class="column">
             <h3 class="section-title">Abstract</h3>
             <p>This project explores classifying various species of leaves using machine learning techniques. 
-            Three classifiers (Random Forest, K-Neighbors, and SVC) were evaluated, and the validation accuracies 
+            Three classifiers (Random Forest, K-Neighbors, and SVC) were evaluated, and submission logloss scores
             for each model were compared to determine the most effective approach for leaf classification.</p>
         </div>
 
