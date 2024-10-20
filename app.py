@@ -191,8 +191,8 @@ html_output = f"""
             <p>We evaluated three models on the Kaggle platform, and KNN achieved the best performance:</p>
             <ul>
                 <li><strong>KNN</strong>: 0.14407 log loss</li>
-                <li><strong>SVC</strong>: 2.088 log loss</li>
-                <li><strong>RandomForest</strong>: 0.687 log loss</li>
+                <li><strong>SVC</strong>: 2.08805 log loss</li>
+                <li><strong>RandomForest</strong>: 0.68685 log loss</li>
             </ul>
             <p>As KNN achieved the best performance, we used it for the final model.</p>
 
