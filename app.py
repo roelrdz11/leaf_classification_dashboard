@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import base64
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.metrics import log_loss
 from keras.preprocessing.image import load_img
@@ -12,7 +12,9 @@ from io import BytesIO
 train_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/train.csv.zip"
 test_data_path = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/test.csv.zip"
 images_dir = "C:/Users/roelr/OneDrive/Documents/ADAN/7431/leaf_classification_dashboard/images/images"
-kaggle_image_path = "C:/Users/roelr/OneDrive/Pictures/leaf_kaggle.png"
+knn_image_path = "C:/Users/roelr/OneDrive/Pictures/knn_kaggle.png"
+svc_image_path = "C:/Users/roelr/OneDrive/Pictures/svc_kaggle.png"
+rf_image_path = "C:/Users/roelr/OneDrive/Pictures/rf_kaggle.png"
 
 # Step 1: Load training and test datasets
 train_data = pd.read_csv(train_data_path)
@@ -32,26 +34,40 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 X_test_scaled = scaler.transform(X_test)
 
-# Step 3: Train a RandomForestClassifier
-rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
-rf_model.fit(X_scaled, y_encoded)
+# Step 3: Train a KNeighborsClassifier
+knn_model = KNeighborsClassifier(n_neighbors=5)
+knn_model.fit(X_scaled, y_encoded)
 
 # Step 4: Predict probabilities for the test set
-test_probabilities = rf_model.predict_proba(X_test_scaled)
+test_probabilities = knn_model.predict_proba(X_test_scaled)
 
-# Step 5: Evaluate RandomForest performance (Kaggle score)
-rf_logloss = log_loss(y_encoded, rf_model.predict_proba(X_scaled))
-print(f"RandomForest LogLoss on Training Data: {rf_logloss}")
+# Step 5: Evaluate KNeighbors performance
+knn_logloss = log_loss(y_encoded, knn_model.predict_proba(X_scaled))
+print(f"KNeighbors LogLoss on Training Data: {knn_logloss}")
 
 # Step 6: Prepare submission DataFrame
 submission_df = pd.DataFrame(test_probabilities, columns=le.classes_)
 submission_df.insert(0, 'id', test_data['id'])  # Insert 'id' column from test data
 
 # Save the submission file
-submission_df.to_csv('leaf_classification_submission.csv', index=False)
-print("Submission file saved as 'leaf_classification_submission.csv'")
+submission_df.to_csv('kneighbors_leaf_classification_submission.csv', index=False)
+print("Submission file saved as 'kneighbors_leaf_classification_submission.csv'")
 
-# Step 7: Generate HTML-embedded images
+# Step 7: Embed Kaggle images
+def embed_kaggle_images():
+    images_html = ""
+    image_paths = [knn_image_path, svc_image_path, rf_image_path]
+    labels = ['KNN', 'SVC', 'RandomForest']
+    
+    for i, img_path in enumerate(image_paths):
+        with open(img_path, "rb") as image_file:
+            img_base64 = base64.b64encode(image_file.read()).decode()
+        images_html += f'<h5>{labels[i]} Kaggle Submission</h5>'
+        images_html += f'<img src="data:image/png;base64,{img_base64}" alt="{labels[i]} Kaggle Image" style="width:100%; height:auto; margin-bottom:20px;">\n'
+    
+    return images_html
+
+# Step 8: Generate HTML-embedded images for methods
 def generate_image_html():
     img_html = ""
     img_width_percentage = 100 // 5  # To display 5 images in the same row
@@ -70,13 +86,7 @@ def generate_image_html():
     
     return img_html
 
-# Step 8: Embed Kaggle image
-def embed_kaggle_image():
-    with open(kaggle_image_path, "rb") as image_file:
-        kaggle_img_base64 = base64.b64encode(image_file.read()).decode()
-    return f'<img src="data:image/png;base64,{kaggle_img_base64}" alt="Kaggle Submission Image" style="width:100%; height:auto;">'
-
-# Step 9: Generate the HTML output including images in the Methods section and Kaggle image in Results section
+# Step 9: Generate the HTML output including KNN modeling and Kaggle images
 html_output = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -143,7 +153,7 @@ html_output = f"""
         <div class="column">
             <h3 class="section-title">Abstract</h3>
             <p>This project explores classifying various species of leaves using machine learning techniques. 
-            Three classifiers (Random Forest, K-Neighbors, and SVC) were evaluated, and submission logloss scores
+            Three classifiers (KNN, Random Forest, and SVC) were evaluated, and the validation accuracies 
             for each model were compared to determine the most effective approach for leaf classification.</p>
         </div>
 
@@ -158,8 +168,8 @@ html_output = f"""
             </p>
             <p><strong>Classifiers:</strong> 
             <ul>
+                <li>KNN: A distance-based classifier.</li>
                 <li>RandomForest: A tree-based ensemble method.</li>
-                <li>KNeighbors: A distance-based model.</li>
                 <li>SVC: A linear support vector classifier.</li>
             </ul>
             </p>
@@ -170,27 +180,29 @@ html_output = f"""
 
         <!-- Column 3: Results -->
         <div class="column">
-            <h3 class="section-title">Results: Kaggle Submission</h3>
-            <p>We evaluated three models on the Kaggle platform:</p>
+            <h3 class="section-title">Results: Kaggle Submissions</h3>
+            <p>We evaluated three models on the Kaggle platform, and KNN achieved the best performance:</p>
             <ul>
-                <li><strong>SVC</strong>: 2.088 log loss</li>
-                <li><strong>KNeighbors</strong>: 1.782 log loss</li>
-                <li><strong>RandomForest</strong>: 0.687 log loss (best performance)</li>
+                <li><strong>KNN</strong>: 0.14407 log loss</li>
+                <li><strong>SVC</strong>: 2.08805 log loss</li>
+                <li><strong>RandomForest</strong>: 0.68658 log loss</li>
             </ul>
-            <p>As RandomForest achieved the best performance, we used it for the final model.</p>
-            <!-- Embed Kaggle image -->
-            {embed_kaggle_image()}
+            <p>As KNN achieved the best performance, we used it for the final model.</p>
+
+            <!-- Embed Kaggle images -->
+            {embed_kaggle_images()}
         </div>
 
         <!-- Column 4: Discussion and Conclusion -->
         <div class="column">
             <h3 class="section-title">Discussion</h3>
-            <p>The Random Forest model achieved the best validation accuracy and the lowest log loss. 
-            The Kaggle submission results are visualized in the figure above, demonstrating the model's performance compared to other classifiers.</p>
+            <p>KNN performed exceptionally well due to its ability to capture distances between points effectively in this leaf classification problem. 
+            Since leaf data often involves subtle differences between species, a distance-based method like KNN was able to distinguish between them more accurately than linear models or tree-based ensembles. 
+            The results from Kaggle further reinforce this conclusion, with KNN outperforming SVC and RandomForest in terms of log loss.</p>
 
             <h3 class="section-title">Conclusion</h3>
             <p>This study demonstrates the effectiveness of machine learning models in leaf classification tasks. 
-            The Random Forest model provided the best performance, indicating its suitability for this dataset. 
+            The KNN model provided the best performance, indicating its suitability for this dataset. 
             Future studies could explore more complex models or additional feature engineering to improve classification results further.</p>
 
             <h3 class="section-title">References</h3>
