@@ -16,16 +16,15 @@ knn_image_path = "C:/Users/roelr/OneDrive/Pictures/knn_kaggle.png"
 svc_image_path = "C:/Users/roelr/OneDrive/Pictures/svc_kaggle.png"
 rf_image_path = "C:/Users/roelr/OneDrive/Pictures/rf_kaggle.png"
 
-# Step 1: Load training and test datasets
 train_data = pd.read_csv(train_data_path)
 test_data = pd.read_csv(test_data_path)
 
-# Step 2: Preprocessing
-X = train_data.drop(columns=['id', 'species'])  # Features
-y = train_data['species']  # Labels
-X_test = test_data.drop(columns=['id'])  # Test features for Kaggle submission
+# Preprocessing
+X = train_data.drop(columns=['id', 'species'])  
+y = train_data['species'] 
+X_test = test_data.drop(columns=['id']) 
 
-# Encode labels
+# Encode labels and standardize features
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 
@@ -34,26 +33,24 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 X_test_scaled = scaler.transform(X_test)
 
-# Step 3: Train a KNeighborsClassifier
+# Train a KNeighborsClassifier
 knn_model = KNeighborsClassifier(n_neighbors=5)
 knn_model.fit(X_scaled, y_encoded)
 
-# Step 4: Predict probabilities for the test set
+# Predict probabilities for the test set
 test_probabilities = knn_model.predict_proba(X_test_scaled)
 
-# Step 5: Evaluate KNeighbors performance
+# Evaluate KNeighbors performance
 knn_logloss = log_loss(y_encoded, knn_model.predict_proba(X_scaled))
 print(f"KNeighbors LogLoss on Training Data: {knn_logloss}")
 
-# Step 6: Prepare submission DataFrame
+# Prepare submission for Kaggle
 submission_df = pd.DataFrame(test_probabilities, columns=le.classes_)
 submission_df.insert(0, 'id', test_data['id'])  # Insert 'id' column from test data
-
-# Save the submission file
 submission_df.to_csv('kneighbors_leaf_classification_submission.csv', index=False)
 print("Submission file saved as 'kneighbors_leaf_classification_submission.csv'")
 
-# Step 7: Embed Kaggle images
+# Embed Kaggle images
 def embed_kaggle_images():
     images_html = ""
     image_paths = [knn_image_path, svc_image_path, rf_image_path]
@@ -67,10 +64,10 @@ def embed_kaggle_images():
     
     return images_html
 
-# Step 8: Generate HTML-embedded images for methods
+# Generate HTML-embedded images for methods
 def generate_image_html():
     img_html = ""
-    img_width_percentage = 100 // 5  # To display 5 images in the same row
+    img_width_percentage = 100 // 5
     for i in range(5):
         img_file = np.random.choice(os.listdir(images_dir))
         img_path = os.path.join(images_dir, img_file)
@@ -81,12 +78,12 @@ def generate_image_html():
         img.save(img_buffer, format="PNG")
         img_base64 = base64.b64encode(img_buffer.getvalue()).decode()
 
-        # Embed the image into the HTML, making sure 5 images fit in the same row
+        # Embed the image into the HTML, making sure 5 images fit in the same column
         img_html += f'<img src="data:image/png;base64,{img_base64}" alt="Random Image {i+1}" style="width:{img_width_percentage}%; height:auto; display:inline-block;">\n'
     
     return img_html
 
-# Step 9: Generate the HTML output including KNN modeling and Kaggle images
+# Generate the HTML output
 html_output = f"""
 <!DOCTYPE html>
 <html lang="en">
